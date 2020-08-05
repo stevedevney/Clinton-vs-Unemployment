@@ -1,0 +1,74 @@
+---
+title: "Comparison of Percent Democratic vote vs the "
+output: html_notebook
+---
+
+Looking to compare local area unemployment statistics vs who a county voted for in 2016. To see if Democrates vs republicans are experiencing the pandamic differently. It appears to me that we will see a big increase in Democratic unemployment but not as much for republicans. 
+
+
+
+```{r}
+#Libraries
+library(vroom)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+#Data from Unemployment 
+unemploymentURL = "https://www.bls.gov/web/metro/laucntycur14.txt"
+unemployment = vroom(unemploymentURL, delim = "|", skip = 6)
+head(unemployment)
+names(unemployment)<- c("LAUS_Area","State_Fips","County_Fips","Area_Name","Period","Labor_Force","Employed","Unemployed_People","Unemployed_Rate")
+head(unemployment)
+unemployment$FIPS = paste0(unemployment$State_Fips,unemployment$County_Fips)
+
+
+#unemployment$DateEstimate = as.Date(unemployment$Period,"%B-%y")
+
+```
+Now we need to import the county data for who a county voted for as president in 2016. data comes from "https://github.com/Deleetdk/USA.county.data/blob/master/data/USA_county_data.RData"
+
+
+```{r}
+load("C:/Users/steve/Downloads/USA_county_data.RData")
+USA_county_data #Name of the data from github. 
+
+votes = USA_county_data
+head(votes)
+votes$FIPS = ifelse(nchar(votes$fips)<5, paste0("0",as.character(votes$fips)), as.character(votes$fips))
+
+votes[votes$FIPS=="21005",]
+votes %>%  filter(statecode_prev=="21")
+
+
+
+```
+
+Join the 2 datasets together as a left loin with unemployment as the left. Note Alaska has no county data, so is excluded.
+
+```{r}
+unemployed_Voters = left_join(unemployment,votes, by="FIPS")
+head(unemployed_Voters)
+
+sum(ifelse(unemployed_Voters$Unemployed_Rate>0.1,1,0))
+
+sum(is.na(unemployed_Voters$Unemployed_Rate))
+sum(is.na(unemployed_Voters$dem16_frac))
+```
+Plot the comparison of voted Clinton to Unemployment
+```{r}
+
+ggplot(data= unemployed_Voters, aes(x = dem16_frac, y = Unemployed_Rate))+
+  geom_point()+
+  geom_smooth()+
+  labs(title = 'Percent of 2016 Votes for Democrates vs May 2020 Unemployment')+
+  xlab( "Percent Democratic vote")+
+  ylab(" Percent Unemployment May 2020")+
+  theme_bw()
+  
+  
+
+```
+
