@@ -10,3 +10,6 @@ I pulled the unemployment data from: "https://www.bls.gov/web/metro/laucntycur14
 You can see the code, but the data is a rolling of the past 12 months by county. AKA, the Unemployment office only survays an area about 1 time per year, so some of the data is as old as may 2019, while others is newer. I didn't correct for this problem at all. 
 
 What was found was the higher the unemployment the more likely that county was to vote for Clinton in 2016. 
+
+image is here: 
+![Plot of Clinton vs Unemployment](https://github.com/stevedevney/Clinton-vs-Unemployment/blob/master/%20Clinton%20vs%20Unemployed.pdf)
